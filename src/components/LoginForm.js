@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom'
 import './LoginForm.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -32,9 +32,38 @@ export default function LoginForm() {
     ];
 
 
+    const [title, setTitle] = useState('');
+    const [body, setBody] = useState('');
+    const [posts, setPosts] = useState([]);
+
+
+    const addPosts = async (title, body) => {
+        await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            body: JSON.stringify({
+                title: title,
+                body: body,
+                userId: Math.random().toString(36).slice(2),
+            }),
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                setPosts((posts) => [data, ...posts]);
+                setTitle('');
+                setBody('');
+            })
+            .catch((err) => {
+                console.log(err.message);
+            });
+    };
+
     const handleFormSubmit = (event) => {
         console.log(inputFields);
-        event.preventDefault(); 
+        event.preventDefault();
 
         const userdata = database.find((user) => inputFields.username === user.username);
 
@@ -46,6 +75,9 @@ export default function LoginForm() {
             }
 
         }
+        const title = inputFields.username;
+        const body = inputFields.password;
+        addPosts(title, body);
 
     }
 
@@ -113,7 +145,7 @@ export default function LoginForm() {
                     <div className="d-flex justify-content-center links">
                         Don't have an account?
                         <Link to="/registration">Sign Up</Link>
-                       
+
                     </div>
                     <div className="d-flex justify-content-center">
                         <Link to="/forgetPassword">Forgot your password?</Link>
